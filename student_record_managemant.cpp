@@ -1,255 +1,108 @@
-
-#include <fstream>
 #include <iostream>
-#include <stdio.h>
 #include <string.h>
 
 using namespace std;
 
-int main()
-{
-	char data[150];
-	int n = 0, option = 0, count_n = 0;
-	
-	string empty = "00";
-	string proctor = "";
-	
-	ifstream f("Example.txt");
-	string line;
+struct Student {
+    char regno[20];
+    char name[50];
+    char proctor[20];
+    int cse1001;
+    int cse1002;
+};
 
-	for (int i = 0; std::getline(f, line); ++i) {
-		count_n++;
-	}
+Student students[100];
+int student_count = 0;
 
-	while (option != 6) {
-		
-		cout << "\nAvailable operations: \n1. Add New "
-				"Students\n2."
-			<< "Student Login\n3. Faculty Login\n4. "
-				"Proctor Login\n5. Admin View\n"
-			<< "6. Exit\nEnter option: ";
-		cin >> option;
+void addNewStudents() {
+    cout << "Enter the registration number: ";
+    cin >> students[student_count].regno;
 
-		if (option == 1) {
-			cout << "Enter the number of students: ";
-			cin >> n;
+    cout << "Enter the name: ";
+    cin >> students[student_count].name;
 
-			count_n = count_n + n;
+    cout << "Enter the proctor ID: ";
+    cin >> students[student_count].proctor;
 
-			for (int i = 0; i < n; i++) {
-				ofstream outfile;
-				outfile.open("Example.txt", ios::app);
-				
-				cout << "Enter your registration number: ";
-				cin >> data;
-				outfile << data << "\t";
+    // Initially setting marks to 0
+    students[student_count].cse1001 = 0;
+    students[student_count].cse1002 = 0;
 
-				cout << "Enter your name: ";
-				cin >> data;
-				int len = strlen(data);
+    student_count++;
+}
 
-				while (len < 15) {
-					data[len] = ' ';
-					len = len + 1;
-				}
-				outfile << data << "\t";
-				
-				outfile << empty << "\t";
-				outfile << empty << "\t";
+void studentLogin() {
+    char regno[20];
+    cout << "Enter the registration number: ";
+    cin >> regno;
 
-				cout << "Enter your proctor ID: ";
-				cin >> proctor;
+    bool found = false;
+    for (int i = 0; i < student_count; i++) {
+        if (strcmp(students[i].regno, regno) == 0) {
+            cout << "Name: " << students[i].name << endl;
+            cout << "CSE1001 marks: " << students[i].cse1001 << endl;
+            cout << "CSE1002 marks: " << students[i].cse1002 << endl;
+            found = true;
+            break;
+        }
+    }
 
-				outfile << proctor << endl;
-			}
-		}
+    if (!found) {
+        cout << "Registration number not found!" << endl;
+    }
+}
 
-		else if (option == 2) {
-			char regno[20];
-			cout << "Enter your registration number: ";
-			cin >> regno;
-			ifstream infile;
-			int check = 0;
-			infile.open("Example.txt", ios::in);
+void addMarks() {
+    char regno[20];
+    cout << "Enter the registration number: ";
+    cin >> regno;
 
-			while (infile >> data) {
-				if (strcmp(data, regno) == 0) {
-					cout
-						<< "\nRegistration Number: " << data
-						<< endl;
-					infile >> data;
-					cout << "Name: " << data << endl;
+    bool found = false;
+    for (int i = 0; i < student_count; i++) {
+        if (strcmp(students[i].regno, regno) == 0) {
+            cout << "Enter CSE1001 marks: ";
+            cin >> students[i].cse1001;
+            cout << "Enter CSE1002 marks: ";
+            cin >> students[i].cse1002;
+            found = true;
+            break;
+        }
+    }
 
-					infile >> data;
-					cout << "CSE1001 mark: " << data
-						<< endl;
+    if (!found) {
+        cout << "Registration number not found!" << endl;
+    }
+}
 
-					infile >> data;
-					cout << "CSE1002 mark: " << data
-						<< endl;
+void viewAllStudents() {
+    for (int i = 0; i < student_count; i++) {
+        cout << "Reg No: " << students[i].regno << ", Name: " << students[i].name
+             << ", CSE1001: " << students[i].cse1001 << ", CSE1002: " << students[i].cse1002 << endl;
+    }
+}
 
-					infile >> data;
-					cout << "Proctor ID: " << data << endl;
+int main() {
+    int option;
 
-					infile.close();
-					check = 1;
-				}
-			}
+    while (true) {
+        cout << "\n1. Add New Student\n2. Student Login\n3. Add Marks\n4. View All Students\n5. Exit\n";
+        cout << "Enter your option: ";
+        cin >> option;
 
-			if (check == 0) {
-				cout << "No such registration number found!"
-					<< endl;
-			}
-		}
-		else if (option == 3) {
-			char subcode[7];
-			cout << "Enter your subject code: ";
-			cin >> subcode;
-			string code1 = "CSE1001", code2 = "CSE1002",
-				mark = "";
-			ifstream infile;
-			int check = 0;
+        if (option == 1) {
+            addNewStudents();
+        } else if (option == 2) {
+            studentLogin();
+        } else if (option == 3) {
+            addMarks();
+        } else if (option == 4) {
+            viewAllStudents();
+        } else if (option == 5) {
+            break;
+        } else {
+            cout << "Invalid option!" << endl;
+        }
+    }
 
-			cout << "\nAvailable operations: \n1. Add data "
-					"about marks\n"
-				<< "2. View data\nEnter option: ";
-			cin >> option;
-
-			if (option == 1) {
-				cout
-					<< "Warning! You would need to add mark"
-					<< "details for all the students!"
-					<< endl;
-				for (int i = 0; i < count_n; i++) {
-					fstream file("Example.txt");
-
-
-					if (strcmp(subcode, code1.c_str())
-						== 0) {
-						file.seekp(26 + 37 * i,
-								std::ios_base::beg);
-						cout << "Enter the mark of student#"
-							<< (i + 1) << " : ";
-						cin >> mark;
-						file.write(mark.c_str(), 2);
-					}
-
-					if (strcmp(subcode, code2.c_str())
-						== 0) {
-						file.seekp(29 + 37 * i,
-								std::ios_base::beg);
-						cout << "Enter the mark of student#"
-							<< (i + 1) << " : ";
-						cin >> mark;
-						file.write(mark.c_str(), 2);
-					}
-				}
-			}
-
-			else if (option == 2) {
-				infile.open("Example.txt", ios::in);
-				if (strcmp(subcode, code1.c_str()) == 0) {
-					cout << "Registration number - Marks\n"
-						<< endl;
-					while (infile >> data) {
-						cout << data;
-						infile >> data;
-						infile >> data;
-						cout << " - " << data << endl;
-						infile >> data;
-						infile >> data;
-						check = 1;
-					}
-				}
-
-				infile.close();
-				infile.open("Example.txt", ios::in);
-
-				if (strcmp(subcode, code2.c_str()) == 0) {
-					cout << "Registration number - Marks\n"
-						<< endl;
-					while (infile >> data) {
-						cout << data;
-						infile >> data;
-						infile >> data;
-						infile >> data;
-						cout << " - " << data << endl;
-						infile >> data;
-						check = 1;
-					}
-				}
-			}
-
-			infile.close();
-
-			if (check == 0) {
-				cout << "No such subject code found!"
-					<< endl;
-			}
-		}
-
-		else if (option == 4) {
-			char procid[7];
-			cout << "Enter your proctor ID: ";
-			cin >> procid;
-			int check = 0;
-			char temp1[100], temp2[100], temp3[100];
-			char temp4[100], id[100];
-			ifstream infile;
-			infile.open("Example.txt", ios::in);
-
-			while (infile >> temp1) {
-				infile >> temp2;
-				infile >> temp3;
-				infile >> temp4;
-				infile >> id;
-
-				if (strcmp(id, procid) == 0) {
-					cout << "\nRegistration Number: "
-						<< temp1 << endl;
-					cout << "Name: " << temp2 << endl;
-					cout << "CSE1001 Mark: " << temp3
-						<< endl;
-					cout << "CSE1002 Mark: " << temp4
-						<< endl;
-					check = 1;
-				}
-			}
-
-			if (check == 0) {
-				cout << "No such proctor ID found!" << endl;
-			}
-		}
-
-		else if (option == 5) {
-			char password[25];
-			cout << "Enter the admin password: ";
-			cin >> password;
-
-
-			string admin_pass = "admin";
-
-			if (strcmp(password, admin_pass.c_str()) == 0) {
-				cout << "Reg No.	 "
-						"\tName\tCSE1001\tCSE1002\tProctor "
-						"ID"
-					<< endl;
-				ifstream infile;
-				infile.open("Example.txt", ios::in);
-				char data[20];
-
-				while (infile >> data) {
-					cout << data << "\t";
-					infile >> data;
-					cout << data << "\t";
-					infile >> data;
-					cout << data << "\t";
-					infile >> data;
-					cout << data << "\t";
-					infile >> data;
-					cout << data << endl;
-				}
-			}
-		}
-	}
+    return 0;
 }
